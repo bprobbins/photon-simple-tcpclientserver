@@ -28,8 +28,9 @@ void loop() {
   if (digitalRead(D3)) {digitalWrite(D6,HIGH);delay(200);digitalWrite(D6,LOW);}
 
   while (!WiFi.ready()) {
+    Particle.process();
     WiFi.connect();
-    while(WiFi.connecting()){}
+    while(WiFi.connecting()){Particle.process();}
   }// while (!WiFi.ready())
 
   complete = false;
