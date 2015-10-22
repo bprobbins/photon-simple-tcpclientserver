@@ -81,5 +81,5 @@ void loop()
     client = server.available();
  //keep connection alive long enough for client to receive reply
     lastTime = millis();
-    while ( millis()-lastTime < 100) {}
+    while ( millis()-lastTime < 300) {}
 }//loop
