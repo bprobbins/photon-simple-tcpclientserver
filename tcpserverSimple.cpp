@@ -77,7 +77,7 @@ void loop()
     }//if (client.connected())
     client.read();
     client.flush();
-    client.stop();
+//    client.stop(); //apparently unnecessary
     client = server.available();
  //keep connection alive long enough for client to receive reply
     lastTime = millis();

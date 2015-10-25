@@ -64,7 +64,7 @@ void loop() {
 
   client.read();
   client.flush();
-  client.stop();
+//  client.stop();//apparently unnecessary
 
 }//while (!complete)
 
