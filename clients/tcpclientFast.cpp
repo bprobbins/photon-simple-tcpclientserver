@@ -12,27 +12,25 @@ char inmsg[512];
 String myInStr;
 char myIpString[24];
 byte server[] = {192, 168, 1, 10};//photon or computer nodejs ip
-//byte server[] = {XXX,XXX,XXX,XXX};//photon or computer nodejs ip
+//byte server[] = {192, 168, 1, 241};//photon or computer nodejs ip
 bool complete;
 TCPClient client;
 
 char outmsg[50];
 
 void in(char *ptr, uint8_t timeout) {
-        int pos = 0;
-        unsigned long lastTime = millis();
-        while( client.available()==0 && millis()-lastTime<timeout) {}
-        unsigned long lastdata = millis();
-        while ( client.available() || (millis()-lastdata < 10)) {
+        	int pos = 0;
+		unsigned long lastdata = millis();
+		while ( client.available() || (millis()-lastdata < timeout)) {
             if (client.available()) {
                 char c = client.read();
                 lastdata = millis();
                 ptr[pos] = c;
                 pos++;
-            }
+            }//if (client.available())
             if (pos >= 512 - 1)
             break;
-        }
+        }//while ( client.available() || (millis()-lastdata < 10))
         ptr[pos] = '\0'; //end the char array
         while (client.available()) client.read();
         client.flush();  //for safety
@@ -63,7 +61,7 @@ void loop() {
           out(outmsg);
          lastTime = millis();
          while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
-            in(inmsg,10);
+            in(inmsg,50);
             myInStr =inmsg;
             if (myInStr.indexOf(replymsg)  >= 0) {
               digitalWrite(D7, 1);          // Flashes the LED
@@ -71,8 +69,7 @@ void loop() {
               while ( millis()-lastTime < 5) { } //5
               digitalWrite(D7, 0);          // Flashes the LED
               complete = true;
-            }//if (myInStr.indexOf(replymsg)  >= 0) {
-
+            }//if (myInStr.indexOf(replymsg)  >= 0)
         }//if (client.connected())
       }//if (client.connect( server, serverPort))
     }//while (!complete) //!!!!!!!!!!!!!!!!
