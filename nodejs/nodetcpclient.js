@@ -1,8 +1,9 @@
+//useful for testing server
 "use strict";
 
 var net = require('net');
 
-var HOST = '192.168.1.157';
+var HOST = '192.168.1.10';
 
 var PORT = 6123;
 
@@ -40,7 +41,7 @@ var recursive = function () {
             console.log('Loop #: ' + loopCounter)
         });
 
-        setTimeout(recursive, 1000);
+        setTimeout(recursive, 100);
 
     })
 

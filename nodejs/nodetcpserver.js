@@ -1,8 +1,6 @@
-//useful to test your client
-
 var net = require('net');
 
-var HOST = 'XXX.XXX.X.XXX'; //insert your computer's ip address
+var HOST = 'XXX.XXX.XXX.XXX'; //your computer's ip address
 var PORT = 6123;
 
 // Create a server instance, and chain the listen function to it
