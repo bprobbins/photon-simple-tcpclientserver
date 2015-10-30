@@ -5,9 +5,8 @@ SYSTEM_MODE(MANUAL);
 
 int serverPort = 6123;
 uint32_t lastTime;
-char read_char;
-char clientmsg = 'x';
-const char replymsg = '9';
+const char replymsg[10] = "TheInMsg";
+char clientmsg[10] ="mymsg 2";
 char inmsg[512];
 String myInStr;
 char myIpString[24];
@@ -19,21 +18,21 @@ TCPClient client;
 char outmsg[50];
 
 void in(char *ptr, uint8_t timeout) {
-        	int pos = 0;
-		unsigned long lastdata = millis();
-		while ( client.available() || (millis()-lastdata < timeout)) {
-            if (client.available()) {
-                char c = client.read();
-                lastdata = millis();
-                ptr[pos] = c;
-                pos++;
-            }//if (client.available())
-            if (pos >= 512 - 1)
-            break;
-        }//while ( client.available() || (millis()-lastdata < 10))
-        ptr[pos] = '\0'; //end the char array
-        while (client.available()) client.read();
-        client.flush();  //for safety
+  int pos = 0;
+  unsigned long lastdata = millis();
+  while ( client.available() || (millis()-lastdata < timeout)) {
+    if (client.available()) {
+      char c = client.read();
+      lastdata = millis();
+      ptr[pos] = c;
+      pos++;
+    }//if (client.available())
+    if (pos >= 512 - 1)
+    break;
+  }//while ( client.available() || (millis()-lastdata < timeout))
+  ptr[pos] = '\0';
+  while (client.available()) client.read();
+  client.flush();
 }//void in(char *ptr, uint8_t timeout)
 
 void out(const char *s) {client.write( (const uint8_t*)s, strlen(s) );}
@@ -57,10 +56,9 @@ void loop() {
     while ((!complete) &&  (millis() - lastTime < 10000)){
       if (client.connect( server, serverPort)) {
         if (client.connected()) {
-          sprintf(outmsg,"%c",clientmsg);
-          out(outmsg);
-         lastTime = millis();
-         while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
+          out(clientmsg);
+          lastTime = millis();
+          while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
             in(inmsg,50);
             myInStr =inmsg;
             if (myInStr.indexOf(replymsg)  >= 0) {
