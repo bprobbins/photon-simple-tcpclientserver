@@ -5,14 +5,35 @@ SYSTEM_MODE(MANUAL);
 
 int serverPort = 6123;
 uint32_t lastTime;
-char read_char;
-char clientmsg = 'x';
-char replymsg = '9';
+const char replymsg[10] = "TheInMsg";
+char clientmsg[10] ="mymsg 2";
+char inmsg[512];
+String myInStr;
+char myIpString[24];
+
 byte server[] = {192, 168, 1, 10};
 bool complete;
 TCPClient client;
 
 char outmsg[50];
+
+void in(char *ptr, uint8_t timeout) {
+  int pos = 0;
+  unsigned long lastdata = millis();
+  while ( client.available() || (millis()-lastdata < timeout)) {
+    if (client.available()) {
+      char c = client.read();
+      lastdata = millis();
+      ptr[pos] = c;
+      pos++;
+    }//if (client.available())
+    if (pos >= 512 - 1)
+    break;
+  }//while ( client.available() || (millis()-lastdata < timeout))
+  ptr[pos] = '\0';
+  while (client.available()) client.read();
+  client.flush();
+}//void in(char *ptr, uint8_t timeout)
 
 void out(const char *s) {client.write( (const uint8_t*)s, strlen(s) );}
 
@@ -33,34 +54,25 @@ void loop() {
       WiFi.connect();
       while(WiFi.connecting()){Particle.process();}
     }// while (!WiFi.ready())
-
     complete = false;
-    //don't unsuccessfully persist beyond 10 secs, just go back to sleep
     lastTime = millis();
     while ((!complete) &&  (millis() - lastTime < 10000)){
       if (client.connect( server, serverPort)) {
         if (client.connected()) {
-          sprintf(outmsg,"%c",clientmsg);
-          out(outmsg);
+          out(clientmsg);
           lastTime = millis();
-          while ((!client.available()) && (millis() - lastTime < 5000)) { } //critical 10000
-          lastTime = millis();
-          while ((millis() - lastTime < 300)) {}//plays better with nodejs server?
-          while (client.available()) { //now get confirmation from server that server received msg
-            read_char = client.read();
-            if(read_char == replymsg ) { //we got confirmation
-              digitalWrite(D7,HIGH);delay(10);digitalWrite(D7,LOW);
-              client.read();
+          while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
+            in(inmsg,50);
+            myInStr =inmsg;
+            if (myInStr.indexOf(replymsg)  >= 0) {
+              digitalWrite(D7, 1);          // Flashes the LED
+              lastTime = millis();
+              while ( millis()-lastTime < 5) { } //5
+              digitalWrite(D7, 0);          // Flashes the LED
               complete = true;
-            }//if(read_char == replymsg )
-    }//while (client.available())
-  }//if (client.connected())
- }//if (client.connect( server, serverPort))
-  client.read();
-  client.flush();
-}//while (!complete) //!!!!!!!!!!!!!!!!
-// prevent nodejs ECONNRESET, not necessay with another photon??
-//  lastTime = millis();
-//  while ((millis() - lastTime < 500)) {}//prevent nodejs ECONNRESET
+            }//if (myInStr.indexOf(replymsg)  >= 0)
+        }//if (client.connected())
+      }//if (client.connect( server, serverPort))
+    }//while (!complete) //!!!!!!!!!!!!!!!!
   delay(1);
 }//loop
