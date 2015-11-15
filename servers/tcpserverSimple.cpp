@@ -1,10 +1,11 @@
 
-//adapted from @Hootie81 & @jon1977 in community.particle.io
+//adapted from @Hootie81 & @jon1977 & others in community.particle.io
 #include "application.h"
 SYSTEM_MODE(MANUAL);
 int serverPort = 6123;
-const char replymsg[10] = "TheInMsg";
-char clientmsg[10] ="mymsg 2";
+
+const char replymsg[60] = "TheInMsg and then a whole lot more characters than before";
+char clientmsg[60] ="mymsg 2 and then a whole lot more characters than before";
 uint32_t lastTime;
 TCPServer server = TCPServer(serverPort);
 TCPClient client;
@@ -26,11 +27,8 @@ void in(char *ptr, uint8_t timeout) {
       ptr[pos] = c;
       pos++;
     }//if (client.available())
-    if (pos >= 512 - 1)
-    break;
   }//while ( client.available() || (millis()-lastdata < timeout))
-  ptr[pos] = '\0';
-  while (client.available()) client.read();
+  client.read();
   client.flush();
 }//void in(char *ptr, uint8_t timeout)
 
@@ -39,16 +37,13 @@ void setup()
     WiFi.connect();
     while (!WiFi.ready()) {Particle.process();}
     server.begin(); // begin listening for TCP connections
-//    IPAddress myIP = WiFi.localIP();
-//    sprintf(myIpString, "%d.%d.%d.%d", myIP[0], myIP[1], myIP[2], myIP[3]);
-//    Spark.variable("devIP", myIpString, STRING);
     pinMode(LED, OUTPUT);
 }//setup()
 
 void loop() {
   if (client.connected())
     {
-      in(inmsg,50);
+      in(inmsg,40); //40 pure trial and error and longer than in client
       myInStr =inmsg;
       if (myInStr.indexOf(clientmsg)  >= 0) {
         digitalWrite(D7, 1);          // Flashes the LED
@@ -56,12 +51,7 @@ void loop() {
         while ( millis()-lastTime < 5) { } //50
         digitalWrite(D7, 0);          // Flashes the LED
         out(replymsg);
-//THIS WORKS TOO
-//                IPAddress myIP = WiFi.localIP();
-//                sprintf(outmsg, "%d.%d.%d.%d", myIP[0], myIP[1], myIP[2], myIP[3]);
-//                out(outmsg);
       }//if (myInStr.indexOf(clientmsg)  >= 0)
-//        }//while (client.available())
   }//if (client.connected())
     else
       client = server.available();

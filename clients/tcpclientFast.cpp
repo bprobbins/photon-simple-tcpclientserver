@@ -1,12 +1,14 @@
 
-//adapted from @Hootie81 & @jon1977 in community.particle.io
+//adapted from @Hootie81 & @jon1977 & others in community.particle.io
 #include "application.h"
 SYSTEM_MODE(MANUAL);
 
 int serverPort = 6123;
 uint32_t lastTime;
-const char replymsg[10] = "TheInMsg";
-char clientmsg[10] ="mymsg 2";
+//const char replymsg[10] = "TheInMsg";
+//char clientmsg[10] ="mymsg 2";
+const char replymsg[60] = "TheInMsg and then a whole lot more characters than before";
+char clientmsg[60] ="mymsg 2 and then a whole lot more characters than before";
 char inmsg[512];
 String myInStr;
 char myIpString[24];
@@ -27,11 +29,8 @@ void in(char *ptr, uint8_t timeout) {
       ptr[pos] = c;
       pos++;
     }//if (client.available())
-    if (pos >= 512 - 1)
-    break;
   }//while ( client.available() || (millis()-lastdata < timeout))
-  ptr[pos] = '\0';
-  while (client.available()) client.read();
+  client.read();
   client.flush();
 }//void in(char *ptr, uint8_t timeout)
 
@@ -45,21 +44,20 @@ void setup()
   while (!WiFi.ready()) {
     Particle.process();
     WiFi.connect();
-    while(WiFi.connecting()){Particle.process();}
+    while(WiFi.connecting()) {Particle.process();}
   }// while (!WiFi.ready())
-
 }//setup()
 
 void loop() {
     complete = false;
     lastTime = millis();
-    while ((!complete) &&  (millis() - lastTime < 10000)){
+   while ((!complete) &&  (millis() - lastTime < 10000)){
       if (client.connect( server, serverPort)) {
         if (client.connected()) {
           out(clientmsg);
           lastTime = millis();
-          while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
-            in(inmsg,50);
+           while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
+            in(inmsg,10);//10 pure trial and error
             myInStr =inmsg;
             if (myInStr.indexOf(replymsg)  >= 0) {
               digitalWrite(D7, 1);          // Flashes the LED
@@ -70,6 +68,6 @@ void loop() {
             }//if (myInStr.indexOf(replymsg)  >= 0)
         }//if (client.connected())
       }//if (client.connect( server, serverPort))
-    }//while (!complete) //!!!!!!!!!!!!!!!!
+    }//while (!complete)
   delay(1);
 }//loop
