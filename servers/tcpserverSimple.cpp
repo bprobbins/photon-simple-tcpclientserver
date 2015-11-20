@@ -41,6 +41,14 @@ void setup()
 }//setup()
 
 void loop() {
+  delay(1);
+  if (!WiFi.ready()) {
+    Particle.process();
+    WiFi.connect();
+    while(WiFi.connecting()) {Particle.process();}
+  }// if (!WiFi.ready())
+  else
+  {
   if (client.connected())
     {
       in(inmsg,40); //40 pure trial and error and longer than in client
@@ -52,7 +60,8 @@ void loop() {
         digitalWrite(D7, 0);          // Flashes the LED
         out(replymsg);
       }//if (myInStr.indexOf(clientmsg)  >= 0)
-  }//if (client.connected())
+    }//if (client.connected())
     else
       client = server.available();
+    }//else
 }//loop

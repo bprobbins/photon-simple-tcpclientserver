@@ -5,8 +5,6 @@ SYSTEM_MODE(MANUAL);
 
 int serverPort = 6123;
 uint32_t lastTime;
-//const char replymsg[10] = "TheInMsg";
-//char clientmsg[10] ="mymsg 2";
 const char replymsg[60] = "TheInMsg and then a whole lot more characters than before";
 char clientmsg[60] ="mymsg 2 and then a whole lot more characters than before";
 char inmsg[512];
@@ -49,9 +47,17 @@ void setup()
 }//setup()
 
 void loop() {
+  delay(1);
+  if (!WiFi.ready()) {
+    Particle.process();
+    WiFi.connect();
+    while(WiFi.connecting()) {Particle.process();}
+  }// if (!WiFi.ready())
+  else
+  {
     complete = false;
     lastTime = millis();
-   while ((!complete) &&  (millis() - lastTime < 10000)){
+    while ((!complete) &&  (millis() - lastTime < 10000)){
       if (client.connect( server, serverPort)) {
         if (client.connected()) {
           out(clientmsg);
@@ -69,5 +75,5 @@ void loop() {
         }//if (client.connected())
       }//if (client.connect( server, serverPort))
     }//while (!complete)
-  delay(1);
+  }//else
 }//loop
