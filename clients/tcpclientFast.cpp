@@ -9,7 +9,7 @@ char clientmsg[60] ="mymsg 2 and then a whole lot more characters than before";
 char inmsg[512];
 String myInStr;
 char myIpString[24];
-byte server[] = {192, 168, 1, 241};//server's ip address
+byte server[] = {XXX, XXX, XXX, XXX};//server's ip address
 bool complete;
 TCPClient client;
 

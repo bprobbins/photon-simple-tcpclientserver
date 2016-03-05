@@ -11,7 +11,7 @@ char inmsg[512];
 String myInStr;
 char myIpString[24];
 
-byte server[] = {192, 168, 1, 10};
+byte server[] = {XXX, XXX, XXX, XXX}; //your server's ip
 bool complete;
 TCPClient client;
 
@@ -56,12 +56,14 @@ void loop() {
     }// while (!WiFi.ready())
     complete = false;
     lastTime = millis();
-    while ((!complete) &&  (millis() - lastTime < 10000)){
+    while ((!complete) &&  (millis() - lastTime < 100)){
       if (client.connect( server, serverPort)) {
         if (client.connected()) {
           out(clientmsg);
           lastTime = millis();
-          while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
+          while ((!client.available()) && (millis() - lastTime < 500)) {
+            Particle.process();
+          }//wait for response
             in(inmsg,50);
             myInStr =inmsg;
             if (myInStr.indexOf(replymsg)  >= 0) {
