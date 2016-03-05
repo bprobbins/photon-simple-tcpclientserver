@@ -1,8 +1,7 @@
 
-//adapted from @Hootie81 & @jon1977 & others in community.particle.io
-#include "application.h"
+//adapted from @Hootie81 & @jon1977 in community.particle.io
+#include "Particle.h"
 SYSTEM_MODE(MANUAL);
-
 int serverPort = 6123;
 uint32_t lastTime;
 const char replymsg[60] = "TheInMsg and then a whole lot more characters than before";
@@ -10,8 +9,7 @@ char clientmsg[60] ="mymsg 2 and then a whole lot more characters than before";
 char inmsg[512];
 String myInStr;
 char myIpString[24];
-byte server[] = {192, 168, 1, 10};//photon or computer nodejs ip
-//byte server[] = {192, 168, 1, 241};//photon or computer nodejs ip
+byte server[] = {192, 168, 1, 241};//server's ip address
 bool complete;
 TCPClient client;
 
@@ -29,7 +27,6 @@ void in(char *ptr, uint8_t timeout) {
     }//if (client.available())
   }//while ( client.available() || (millis()-lastdata < timeout))
   client.read();
-  client.flush();
 }//void in(char *ptr, uint8_t timeout)
 
 void out(const char *s) {client.write( (const uint8_t*)s, strlen(s) );}
@@ -47,23 +44,17 @@ void setup()
 }//setup()
 
 void loop() {
-  delay(1);
-  if (!WiFi.ready()) {
-    Particle.process();
-    WiFi.connect();
-    while(WiFi.connecting()) {Particle.process();}
-  }// if (!WiFi.ready())
-  else
-  {
     complete = false;
     lastTime = millis();
-    while ((!complete) &&  (millis() - lastTime < 10000)){
+   while ((!complete) &&  (millis() - lastTime < 100)) {
       if (client.connect( server, serverPort)) {
         if (client.connected()) {
           out(clientmsg);
           lastTime = millis();
-           while ((!client.available()) && (millis() - lastTime < 10000)) {Particle.process();}//wait for response
-            in(inmsg,10);//10 pure trial and error
+           while ((!client.available()) && (millis() - lastTime < 500)) {
+             Particle.process();
+           }//wait for response
+            in(inmsg,10);//5-10 pure trial and error
             myInStr =inmsg;
             if (myInStr.indexOf(replymsg)  >= 0) {
               digitalWrite(D7, 1);          // Flashes the LED
@@ -73,7 +64,9 @@ void loop() {
               complete = true;
             }//if (myInStr.indexOf(replymsg)  >= 0)
         }//if (client.connected())
+        client.stop();
       }//if (client.connect( server, serverPort))
+        client.stop();
     }//while (!complete)
-  }//else
+  delay(1);
 }//loop

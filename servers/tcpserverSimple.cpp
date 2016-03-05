@@ -1,6 +1,7 @@
 
+
 //adapted from @Hootie81 & @jon1977 & others in community.particle.io
-#include "application.h"
+#include "Particle.h"
 SYSTEM_MODE(MANUAL);
 int serverPort = 6123;
 
@@ -20,7 +21,7 @@ void out(const char *s) {server.write( (const uint8_t*)s, strlen(s) );  client.s
 void in(char *ptr, uint8_t timeout) {
   int pos = 0;
   unsigned long lastdata = millis();
-  while ( client.available() || (millis()-lastdata < timeout)) {
+  while ( client.available()  || (millis()-lastdata < timeout)) {
     if (client.available()) {
       char c = client.read();
       lastdata = millis();
@@ -51,7 +52,7 @@ void loop() {
   {
   if (client.connected())
     {
-      in(inmsg,40); //40 pure trial and error and longer than in client
+      in(inmsg,10); //40 pure trial and error and longer than in client
       myInStr =inmsg;
       if (myInStr.indexOf(clientmsg)  >= 0) {
         digitalWrite(D7, 1);          // Flashes the LED
